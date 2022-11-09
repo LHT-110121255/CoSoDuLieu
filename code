@@ -1,0 +1,227 @@
+create table PHONGBAN(
+maPB INT constraint Pb_MaPB_PK primary key,
+TenPB varchar (10) constraint PB_TenPB_UQ unique,
+TrPhong char(9),
+NgNhanChuc datetime default (GetDate()))
+
+create table NHANVIEN 
+(
+MaNV char(9) constraint NV_MaNV_PK primary key,
+Ho varchar(15) NOT NULL,
+TenDem varchar(15),
+Ten varchar (15) NOT NULL,
+NgSinh datetime,
+DiaChi varchar(50),
+GTinh char(3) constraint NV_GTinh_CK check (GTinh in ('Nam','Nu')),
+Lung int,
+MaGSat char(9) constraint MV_MaGSat_FK foreign key (MaGSat) references NHANVIEN (MaNV),
+Phong int constraint NV_Phong_FK foreign key (phong) references PHONGBAN(MaPB)
+)
+
+create table DUAN 
+(
+MaDA int constraint DU_MaDA_PK primary key,
+TenDA varchar(15) not null,
+DiaDiem varchar(15),
+PhongQl int constraint DUAN_PHONGQL_FK foreign key (PhongQl) references PHONGBAN(MAPB)
+)
+
+create table PHANCONG
+(
+MaNV char(9) not null,
+MaDA int not null,
+SoGio decimal (3,1),
+constraint PC_MaNV_MaA_PK primary key (MaNV, MaDA),
+constraint PC_MaNV_FK foreign key (MaNV) references NHANVIEN(MaNV),
+constraint PC_MaDA_FK foreign key (MaDA) references DUAN (MaDA)
+)
+
+create table THANNHAN (
+MaNV char (9) not null,
+TenTn char(15) not null,
+GTinh char(3) constraint TN_GTinh_ck check (GTinh in ('Nam','Nu')),
+NgSinh datetime,
+QuanHe varchar(10),
+constraint TN_MaNV_TenTN_PK primary key (MaNV,TenTN),
+constraint TN_MaNV_FK foreign key (MaNV) references NHANVIEN (MaNV)
+)
+
+create table DIADIEM_PHONG (
+	MaPB int not null,
+	DiaDiem varchar(15) not null,
+	constraint DD_F_MaPB_DiaDiem_PK primary key (MaPB, DiaDiem),
+	constraint DD_P_MaPB_PK foreign key (MaPB) references PHONGBAN(MaPB)
+)
+
+ALTER TABLE PHONGBAN
+add constraint PB_TrPhong_Fk foreign key (TrPhong) references NHANVIEN (MaNV)
+
+alter table PHONGBAN
+add NamTL int
+
+alter table PHONGBAN
+alter column NamTL smallint
+
+exec sp_rename 'PHONGBAN.NamTL','NamThanhLap'
+
+alter table PHONGBAN
+add constraint PB_NamThanhlap_CK check (NamThanhLap >= 1990)
+
+alter table PHONGBAN
+drop PB_NamThanhLap_CK
+
+alter table PHONGBAN
+drop column NamThanhLap
+
+use QLDUAN
+go
+
+insert into PHONGBAN (maPB, TenPB, TrPhong, NgNhanChuc)
+values ('5', 'Nghien cuu', null, '06/22/1988')
+insert into PHONGBAN (maPB, TenPB, TrPhong, NgNhanChuc)
+values ('4', 'Hanh chinh', null, '01/01/1995')
+insert into PHONGBAN (maPB, TenPB, TrPhong, NgNhanChuc)
+values ('1', 'Giam doc', null, '06/19/1981')
+
+insert INTO NHANVIEN 
+VALUES('888665555', 'Le','Van','Bo', '11/10/1937','45 Ho Van Hue, Phu Nhuan, TPHCM', 'Nam', 
+55000,NULL,1 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('333445555', 'Phan','Van','Nghia', '12/08/1955','63 Tran Huy Lieu, Phu Nhuan, TPHCM', 
+'Nam', 40000,'888665555',5 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('123456789', 'Nguyen','Bao','Hung', '01/09/1965','73 Phan Dang Luu, Phu Nhuan, TPHCM',
+'Nam', 30000,'333445555',5 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('666884444', 'Tran','Van','Nam', '09/15/1962','97 Dien Bien Phu, Binh Thanh, TPHCM', 
+'Nam', 38000,'333445555',5 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('453453453', 'Hoang','Kim','Yen', '07/31/1972','56 Thich Quang Duc, Phu Nhuan, TPHCM',
+'Nu', 25000,'333445555',5 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('987654321', 'Du','Thi','Hau', '06/20/1941','29 Bach Dang, Tan Binh, TPHCM', 'Nu', 
+43000,'888665555',4 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('999887777', 'Au','Thi','Vuong', '01/19/1968','32 Cao Ba Nha, Q1, TPHCM', 'Nu', 
+25000,'987654321',4 ) 
+ 
+INSERT INTO NHANVIEN 
+VALUES('987987987', 'Nguyen','Van','Giap', '03/29/1969','98 Huynh Van Banh, Phu Nhuan, 
+TPHCM', 'Nam', 25000,'987654321',4 ) 
+ 
+insert into DIADIEM_PHONG
+values (1, 'Phu Nhuan')
+insert into DIADIEM_PHONG
+values (4, 'Go Vap')
+insert into DIADIEM_PHONG
+values (5, 'Tan Binh')
+insert into DIADIEM_PHONG
+values (5, 'Phu Nhuan')
+insert into DIADIEM_PHONG
+values (5, 'Thu Duc')
+
+insert into DUAN
+values (1, 'San pham X', 'Tan Binh', 5)
+insert into DUAN
+values (2, 'San pham y', 'Thu Duc', 5)
+insert into DUAN
+values (3, 'San pham z', 'Phu Nhuan', 5)
+insert into DUAN
+values (10, 'Tin hoc hoa', 'Go Vap', 4)
+insert into DUAN
+values (20, 'Tai to chuc', 'Phu Nhuan', 1)
+insert into DUAN
+values (30, 'Phuc loi', 'Go Vap', 4)
+
+INSERT INTO PHANCONG 
+VALUES('123456789',1,32.5) 
+ 
+INSERT INTO PHANCONG 
+VALUES('123456789',2,7.5) 
+ 
+INSERT INTO PHANCONG 
+VALUES('666884444',3,40.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('453453453',1,20.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('453453453',2,20.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('333445555',2,10.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('333445555',3,10.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('333445555',10,10.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('333445555',20,10.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('999887777',30,30.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('999887777',10,10.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('987987987',10,35.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('987987987',30,5.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('987654321',30,20.0) 
+ 
+INSERT INTO PHANCONG 
+VALUES('987654321',20,15.0)
+INSERT INTO PHANCONG 
+VALUES('888665555',20,NULL) 
+
+insert into THANNHAN
+values ('333445555', 'Anh', 'Nu', '04/05/1986','Con gai')
+insert into THANNHAN
+values ('888665555', 'The', 'Nam', '10/25/1983','Con trai')
+insert into THANNHAN
+values ('333445555', 'Loi', 'Nu', '05/03/1958','Vo')
+insert into THANNHAN
+values ('987654321', 'An', 'Nam', '02/28/1942','Chong')
+insert into THANNHAN
+values ('123456789', 'Minh', 'Nam', '01/04/1988','Con trai')
+
+update PHONGBAN
+set TrPhong = '333445555'
+where maPB = 5
+
+update PHONGBAN
+set TrPhong = '987654321'
+where maPB = 4
+update PHONGBAN
+set TrPhong = '888665555'
+where maPB = 1
+
+update PHONGBAN
+set NgNhanChuc = '06/25/1989'
+where maPB = 5
+
+update NHANVIEN
+set Lung = Lung+1000
+where Phong = 5
+
+delete from DIADIEM_PHONG
+where MaPB = 5
+
+insert into DIADIEM_PHONG
+values (5, 'Tan Binh')
+insert into DIADIEM_PHONG
+values (5, 'Phu Nhuan')
+insert into DIADIEM_PHONG
+values (5, 'Thu Duc')
